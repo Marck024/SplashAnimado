@@ -17,6 +17,8 @@ public class SplashAnimado extends AppCompatActivity {
     private ImageView imgv;
     private ProgressBar pbar;
 
+    private Thread hilo;
+
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,7 +42,7 @@ public class SplashAnimado extends AppCompatActivity {
         pbar=(ProgressBar)findViewById(R.id.progressBar);
 
         //Que hara mientras
-        new Thread(new Runnable() {
+        hilo=new Thread(new Runnable() {
             @Override
             public void run() {
                 for(int i=0;i<100;i+=20){
@@ -55,11 +57,24 @@ public class SplashAnimado extends AppCompatActivity {
                 cargaMenu();
                 finish();
             }
-        }).start();
+        });
+        hilo.start();
 
     }
 
     private void cargaMenu() {
-        startActivity(new Intent().setClass(SplashAnimado.this,MainActivity.class));
+        if(hilo!=null){
+            startActivity(new Intent().setClass(SplashAnimado.this,MainActivity.class));
+        }
+    }
+
+    @Override
+    public void onBackPressed(){
+        if(hilo.isAlive()){
+            Toast.makeText(this,"Cerrando app",Toast.LENGTH_SHORT).show();
+            hilo.interrupt();
+            hilo=null;
+        }
+        finish();
     }
 }
